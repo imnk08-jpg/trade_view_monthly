@@ -13,16 +13,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, '..', '..', 'data');
 
 const COLLECTIONS = ['users', 'overrides', 'admins', 'settings', 'monthlyReturns'];
-const JSONBIN_API_KEY = "$2a$10$xVaqsCCwULKW67lxwdaSoOEOquM44iApmBBdMEizxnwKVLdiihE7G";
+const JSONBIN_API_KEY = "$2a$10$9VvuvF8bMNFiry/b5nh8duUn6N6f4NaABPpb4CZmFhjQJzDh8Q7c.";
 const HARDCODED_JSONBIN_BINS = {
-  users: '6a51aab7da38895dfe4dd7cb',
-  overrides: '6a51ab25f5f4af5e297f6377',
-  admins: '6a51aaf5f5f4af5e297f630e',
-  settings: '6a51ab53f5f4af5e297f63d0',
-  monthlyReturns: '6a51ab3bda38895dfe4dd8ed',
+  users: '6a535723da38895dfe52097f',
+  overrides: '6a535749f5f4af5e29839548',
+  admins: '6a535768f5f4af5e298395a7',
+  settings: '6a53577eda38895dfe520a6b',
+  monthlyReturns: '6a535799da38895dfe520ab8',
 };
 
-const STORAGE = process.env.STORAGE || 'local';
+const STORAGE = "jsonbin";
 
 function assertKnownCollection(name) {
   if (!COLLECTIONS.includes(name)) {
