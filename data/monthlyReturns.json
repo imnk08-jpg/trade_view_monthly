@@ -1,0 +1,38 @@
+[
+  {
+    "id": "mret_mrf08hwi84leu2",
+    "adminPhone": "7357567373",
+    "month": "2026-06",
+    "pct": 5
+  },
+  {
+    "id": "mret_mrf0f9rchtju5g",
+    "adminPhone": "7357567373",
+    "month": "2026-05",
+    "pct": 3
+  },
+  {
+    "id": "mret_mrf0fe1yk5dd9t",
+    "adminPhone": "7357567373",
+    "month": "2026-04",
+    "pct": -2
+  },
+  {
+    "id": "mret_mrf0fje0vvzjgk",
+    "adminPhone": "7357567373",
+    "month": "2026-03",
+    "pct": -4
+  },
+  {
+    "id": "mret_mrf0fm9wpcrjdu",
+    "adminPhone": "7357567373",
+    "month": "2026-02",
+    "pct": 10
+  },
+  {
+    "id": "mret_mrf0fraqcyvbn8",
+    "adminPhone": "7357567373",
+    "month": "2026-01",
+    "pct": 15
+  }
+]

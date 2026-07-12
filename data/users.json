@@ -1,0 +1,104 @@
+[
+  {
+    "id": "user_demo",
+    "name": "Demo Investor",
+    "phone": "9999999999",
+    "adminPhone": "7357567373",
+    "contributions": [
+      {
+        "date": "2026-04-01",
+        "amount": 80000
+      },
+      {
+        "date": "2026-06-15",
+        "amount": 20000
+      },
+      {
+        "date": "2026-01-01",
+        "amount": 100000
+      }
+    ],
+    "payouts": [
+      {
+        "id": "pay_mrfouxyqm65p6k",
+        "date": "2026-07-11",
+        "amount": 5000,
+        "type": "payout"
+      }
+    ],
+    "createdAt": "2026-07-10T13:28:19.201Z"
+  },
+  {
+    "id": "user_mrf07rtm6ztt60",
+    "name": "Twinkle",
+    "phone": "9821558264",
+    "adminPhone": "7357567373",
+    "contributions": [
+      {
+        "date": "2026-06-01",
+        "amount": 22000
+      },
+      {
+        "date": "2026-07-08",
+        "amount": 25000
+      }
+    ],
+    "payouts": [
+      {
+        "id": "pay_mrfp8fsa51kh80",
+        "date": "2026-07-11",
+        "amount": 1100,
+        "type": "payout"
+      },
+      {
+        "id": "pay_mrfp8wqgjarqyw",
+        "date": "2026-07-11",
+        "amount": 25000,
+        "type": "payout"
+      }
+    ],
+    "createdAt": "2026-07-10T14:01:28.474Z"
+  },
+  {
+    "id": "user_mrf0bd95wppdx3",
+    "name": "Rajiv",
+    "phone": "7404910101",
+    "adminPhone": "7357567373",
+    "contributions": [
+      {
+        "date": "2026-07-08",
+        "amount": 300000
+      }
+    ],
+    "payouts": [],
+    "createdAt": "2026-07-10T14:04:16.217Z"
+  },
+  {
+    "id": "user_mrf0c36sj9x3fz",
+    "name": "Ankush",
+    "phone": "9996456565",
+    "adminPhone": "7357567373",
+    "contributions": [
+      {
+        "date": "2026-07-13",
+        "amount": 100000
+      }
+    ],
+    "payouts": [],
+    "createdAt": "2026-07-10T14:04:49.828Z"
+  },
+  {
+    "id": "user_mrhipwd9sgl2ku",
+    "name": "Ankita",
+    "phone": "7087559611",
+    "adminPhone": "7357567373",
+    "contributions": [
+      {
+        "date": "2026-07-12",
+        "amount": 100000
+      }
+    ],
+    "payouts": [],
+    "createdAt": "2026-07-12T08:14:59.613Z"
+  }
+]
