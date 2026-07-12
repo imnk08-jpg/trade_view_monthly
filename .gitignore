@@ -1,0 +1,18 @@
+node_modules
+.npm-cache
+dist
+.vercel
+.env
+.env.local
+*.log
+.DS_Store
+
+# Local dev "database" -- may contain real user data entered via the admin
+# UI; not meant to be versioned (see README, jsonbin is the real store).
+# feed.json is the one exception -- it's intentional sample data.
+/data/*.json
+!/data/feed.json
+
+# Local machine-specific Claude Code settings, not project config.
+.claude/settings.local.json
+.claude/launch.json
