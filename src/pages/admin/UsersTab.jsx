@@ -81,6 +81,7 @@ export default function UsersTab() {
                 <th className="py-2 px-4 text-right">Invested</th>
                 <th className="py-2 px-4 text-right">Current Value</th>
                 <th className="py-2 px-4 text-right">Lifetime Profit</th>
+                <th className="py-2 px-4 text-right">Payout Done</th>
               </tr>
             </thead>
             <tbody>
@@ -97,6 +98,9 @@ export default function UsersTab() {
                 );
                 const latest = series[series.length - 1];
                 const lifetimeProfit = latest?.lifetimeProfit || 0;
+                const totalPayout = (u.payouts || [])
+                  .filter((p) => p.type === 'payout')
+                  .reduce((s, p) => s + p.amount, 0);
                 return (
                   <tr
                     key={u.id}
@@ -111,12 +115,13 @@ export default function UsersTab() {
                     <td className={`py-2 px-4 text-right ${lifetimeProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                       {fmt(lifetimeProfit)}
                     </td>
+                    <td className="py-2 px-4 text-right text-zinc-300">{fmt(totalPayout)}</td>
                   </tr>
                 );
               })}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-6 text-center text-zinc-500">
+                  <td colSpan={7} className="py-6 text-center text-zinc-500">
                     No users yet.
                   </td>
                 </tr>
