@@ -4,6 +4,7 @@ import { getAdminSession, clearAdminSession } from '../lib/session.js';
 import UsersTab from './admin/UsersTab.jsx';
 import ReturnsTab from './admin/ReturnsTab.jsx';
 import PayoutsTab from './admin/PayoutsTab.jsx';
+import AdminProfitTab from './admin/AdminProfitTab.jsx';
 import SettingsTab from './admin/SettingsTab.jsx';
 import AdminsTab from './admin/AdminsTab.jsx';
 
@@ -11,6 +12,7 @@ const TABS = [
   { key: 'users', label: 'Users' },
   { key: 'returns', label: 'Returns' },
   { key: 'payouts', label: 'Payouts' },
+  { key: 'profit', label: 'Admin Profit' },
   { key: 'settings', label: 'Settings' },
   { key: 'admins', label: 'Admins' },
 ];
@@ -69,6 +71,7 @@ export default function AdminDashboard() {
           {tab === 'users' && <UsersTab />}
           {tab === 'returns' && <ReturnsTab />}
           {tab === 'payouts' && <PayoutsTab />}
+          {tab === 'profit' && <AdminProfitTab />}
           {tab === 'settings' && <SettingsTab />}
           {tab === 'admins' && <AdminsTab />}
         </div>

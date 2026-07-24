@@ -19,6 +19,15 @@
 //   Admin can mark a specific (userId, month) as an override, in which case
 //   that user gets the raw % for that month, tiering skipped.
 //
+// ADMIN PROFIT: the spread between what the raw % would have generated on
+// a user's money and what that user actually received is the admin's own
+// profit for managing that user, e.g. raw 10% where the user gets 5%
+// (tiered) leaves the other 5% as admin profit; give the user the full raw
+// % (an "Actual %" override) and the spread -- and admin profit -- is 0.
+// A fixed absolute-amount override works the same way: admin profit is
+// whatever the raw % would have produced minus the fixed amount actually
+// given. See grossPnl/adminProfitThisMonth/cumulativeAdminProfit below.
+//
 // NON-COMPOUNDING RULE: each month's % is applied to the user's base fund
 // only (their contributions to date) -- never to base fund + profit earned
 // in prior months. Profit still accumulates additively into the displayed
@@ -198,12 +207,15 @@ function baseFundAsOf(contributions, onOrBeforeDate) {
 // admin's own monthly % is treated.
 //
 // Returns { series: [{month, principal, monthPnl, monthPct, cumulativePnl,
-//           lifetimeProfit, strategyValue, monthFdPnl, fdValue, monthMfPnl, mfValue}],
+//           lifetimeProfit, strategyValue, monthFdPnl, fdValue, monthMfPnl, mfValue,
+//           grossPnl, adminProfitThisMonth, cumulativeAdminProfit}],
 //           contributions: [{date, amount}],
 //           payoutBreakdown: [{id, date, amount, profitPortion, principalPortion}] }
 // `cumulativePnl` is profit still sitting in the account (what "Gain/Loss"
 // shows -- reduced by payouts/reinvestments). `lifetimeProfit` is total
 // profit ever earned, unaffected by what happened to it afterward.
+// `grossPnl` is what the raw % alone would have produced; `adminProfitThisMonth`
+// / `cumulativeAdminProfit` are the admin's own cut (see ADMIN PROFIT above).
 export function buildUserMonthlySeries(userId, adminPhone, contributions, payouts, adminMonthly, overrides, fdRate, mfRate, asOfMonth) {
   const adminMonths = adminPhone ? adminMonthly.get(adminPhone) : null;
   if (!adminMonths || !contributions || contributions.length === 0) {
@@ -254,6 +266,11 @@ export function buildUserMonthlySeries(userId, adminPhone, contributions, payout
   // the investment's lifetime performance regardless of what happened to
   // the profit afterward (paid out, reinvested, or still sitting).
   let lifetimeProfit = 0;
+  // Admin's own cumulative profit from managing this user -- the spread
+  // between raw % (gross) and what the user actually got, month by month.
+  // Never reduced by the user's own payouts/reinvestments (those are the
+  // user's money, not the admin's).
+  let cumulativeAdminProfit = 0;
   const series = [];
   const payoutBreakdown = [];
   for (const month of months) {
@@ -276,11 +293,16 @@ export function buildUserMonthlySeries(userId, adminPhone, contributions, payout
     const monthPnl = hasAbsoluteOverride ? override.amount : (proratedBase * effectivePct) / 100;
     const monthFdPnl = (proratedBase * fdMonthlyRate) / 100;
     const monthMfPnl = (proratedBase * mfMonthlyRate) / 100;
+    // What the raw % (no tiering, no override) would have produced on this
+    // same base -- the admin's cut is whatever of that the user didn't get.
+    const grossPnl = rawPct === undefined ? 0 : (proratedBase * rawPct) / 100;
+    const adminProfitThisMonth = grossPnl - monthPnl;
 
     cumulativePnl += monthPnl;
     cumulativeFdPnl += monthFdPnl;
     cumulativeMfPnl += monthMfPnl;
     lifetimeProfit += monthPnl;
+    cumulativeAdminProfit += adminProfitThisMonth;
 
     // Process this month's payout/reinvest events in date order. A
     // reinvestment always moves its full amount from profit to principal
@@ -324,6 +346,9 @@ export function buildUserMonthlySeries(userId, adminPhone, contributions, payout
       fdValue: principal + cumulativeFdPnl,
       monthMfPnl,
       mfValue: principal + cumulativeMfPnl,
+      grossPnl,
+      adminProfitThisMonth,
+      cumulativeAdminProfit,
     });
   }
 

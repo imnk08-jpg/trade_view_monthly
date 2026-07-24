@@ -63,27 +63,79 @@ function jsonbinBinId(name) {
   return id;
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// jsonbin's free tier rate-limits fairly aggressively, and a single page
+// load here fires off reads for several collections at once (plus every
+// admin-authenticated request re-reads admins+settings via requireAdmin) --
+// easily enough to trip a 429 under completely normal use. Retry a 429 a
+// few times with backoff before giving up; other error statuses fail fast.
+async function fetchJsonbinWithRetry(url, options, label) {
+  const maxAttempts = 4;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const res = await fetch(url, options);
+    if (res.ok) return res;
+    if (res.status === 429 && attempt < maxAttempts) {
+      await sleep(300 * 2 ** (attempt - 1)); // 300ms, 600ms, 1200ms
+      continue;
+    }
+    throw new Error(`${label}: ${res.status}`);
+  }
+}
+
+// Short-lived read cache, keyed by collection name, plus in-flight request
+// de-duping -- several API handlers reading the same collection within the
+// same page load (e.g. every admin-authenticated request reads 'admins' and
+// 'settings' via requireAdmin) collapse into a single jsonbin call instead
+// of one each, which is most of what was tripping the rate limit above.
+const READ_CACHE_TTL_MS = 4000;
+const readCache = new Map(); // name -> { data, expiresAt }
+const inFlightReads = new Map(); // name -> Promise<data>
+
 async function readJsonbin(name) {
-  const binId = jsonbinBinId(name);
-  const res = await fetch(`${JSONBIN_BASE}/${binId}/latest`, {
-    headers: { 'X-Master-Key': JSONBIN_API_KEY },
-  });
-  if (!res.ok) throw new Error(`jsonbin read failed for ${name}: ${res.status}`);
-  const body = await res.json();
-  return body.record ?? (name === 'settings' ? {} : []);
+  const cached = readCache.get(name);
+  if (cached && cached.expiresAt > Date.now()) return cached.data;
+
+  if (inFlightReads.has(name)) return inFlightReads.get(name);
+
+  const promise = (async () => {
+    const binId = jsonbinBinId(name);
+    const res = await fetchJsonbinWithRetry(
+      `${JSONBIN_BASE}/${binId}/latest`,
+      { headers: { 'X-Master-Key': JSONBIN_API_KEY } },
+      `jsonbin read failed for ${name}`
+    );
+    const body = await res.json();
+    const data = body.record ?? (name === 'settings' ? {} : []);
+    readCache.set(name, { data, expiresAt: Date.now() + READ_CACHE_TTL_MS });
+    return data;
+  })();
+
+  inFlightReads.set(name, promise);
+  try {
+    return await promise;
+  } finally {
+    inFlightReads.delete(name);
+  }
 }
 
 async function writeJsonbin(name, data) {
   const binId = jsonbinBinId(name);
-  const res = await fetch(`${JSONBIN_BASE}/${binId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Master-Key': JSONBIN_API_KEY,
+  await fetchJsonbinWithRetry(
+    `${JSONBIN_BASE}/${binId}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_API_KEY,
+      },
+      body: JSON.stringify(data),
     },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error(`jsonbin write failed for ${name}: ${res.status}`);
+    `jsonbin write failed for ${name}`
+  );
+  // Keep the cache consistent with what we just wrote instead of waiting
+  // for it to expire and re-fetching a value we already have.
+  readCache.set(name, { data, expiresAt: Date.now() + READ_CACHE_TTL_MS });
 }
 
 // ---------- public API ----------
